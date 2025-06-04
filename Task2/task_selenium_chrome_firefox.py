@@ -18,7 +18,7 @@ def get_title(url: str, browser: str) -> str:
         else:
             return 'Error: Unknown browser'
 
-        driver.set_page_load_timeout(5)
+        driver.set_page_load_timeout(10)
         driver.get(url)
         site_title = driver.title
         return f'{browser} browser: {site_title}'
@@ -36,8 +36,8 @@ def get_title(url: str, browser: str) -> str:
 
 if __name__ == '__main__':
     BASE_URL = 'https://google.com'
-    google_chrome = get_title(url=BASE_URL, 'chrome')
-    firefox = get_title(url=BASE_URL, 'firefox')
+    google_chrome = get_title(BASE_URL, 'chrome')
+    firefox = get_title(BASE_URL, 'firefox')
     print(google_chrome)
     print(firefox)
 
