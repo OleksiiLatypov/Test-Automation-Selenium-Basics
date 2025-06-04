@@ -33,7 +33,6 @@ def get_title(url: str, browser: str) -> str:
             driver.quit()
 
 
-
 if __name__ == '__main__':
     BASE_URL = 'https://google.com'
     google_chrome = get_title(BASE_URL, 'chrome')
@@ -41,6 +40,5 @@ if __name__ == '__main__':
     print(google_chrome)
     print(firefox)
 
-
-#command to run
-#python task_selenium_chrome_firefox.py
+# command to run
+# python task_selenium_chrome_firefox.py

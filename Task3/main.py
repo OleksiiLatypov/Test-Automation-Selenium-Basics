@@ -3,65 +3,115 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.expected_conditions import presence_of_element_located
 from selenium.webdriver.support.relative_locator import locate_with
+from selenium.common.exceptions import NoSuchElementException
+import time
 
-# Initialize WebDriver
-driver = webdriver.Chrome()
+# === Setup driver ===
+def setup_driver():
+    options = webdriver.ChromeOptions()
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    driver = webdriver.Chrome(options=options)
+    driver.implicitly_wait(5)
+    return driver
 
-
-def safe_find(description, locator_func):
+# === Utility function ===
+def try_find(driver, strategy, by, locator):
     try:
-        element = locator_func()
-        print(f"{description}: ✅ Found")
-        return element
-    except Exception as e:
-        print(f"{description}: ❌ Not Found ({str(e).splitlines()[0]})")
-        return None
+        element = driver.find_element(by, locator)
+        print(f"✅ {strategy}: {locator}")
+    except NoSuchElementException:
+        pass
 
-
-def get_locators(url):
-    print(f"\n--- Checking locators on: {url} ---")
-    driver.get(url)
+# === Page 1: Demo ===
+def check_demo_page(driver):
+    print("\n🔍 Checking https://phptravels.com/demo/")
+    driver.get("https://phptravels.com/demo/")
     WebDriverWait(driver, 5).until(presence_of_element_located((By.TAG_NAME, "body")))
 
-    # CLASS_NAME
-    safe_find("CLASS_NAME 1 (demo_form)", lambda: driver.find_element(By.CLASS_NAME, "demo_form"))
-    safe_find("CLASS_NAME 2 (first_name)", lambda: driver.find_element(By.CLASS_NAME, "first_name"))
+    try_find(driver, "ID", By.ID, "number")
+    try_find(driver, "ID", By.ID, "demo")
 
-    # ID
-    safe_find("ID 1 (demo)", lambda: driver.find_element(By.ID, "demo"))
-    safe_find("ID 2 (number)", lambda: driver.find_element(By.ID, "number"))
+    try_find(driver, "CLASS_NAME", By.CLASS_NAME, "demo_form")
+    try_find(driver, "CLASS_NAME", By.CLASS_NAME, "first_name")
 
-    # NAME
-    safe_find("NAME 1 (whatsapp)", lambda: driver.find_element(By.NAME, "whatsapp"))
-    safe_find("NAME 2 (business_name)", lambda: driver.find_element(By.NAME, "business_name"))
+    try_find(driver, "NAME", By.NAME, "business_name")
+    try_find(driver, "NAME", By.NAME, "whatsapp")
 
-    # CSS_SELECTOR
-    safe_find("CSS_SELECTOR 1 (input[name='first_name'])", lambda: driver.find_element(By.CSS_SELECTOR, "input[name='first_name']"))
-    safe_find("CSS_SELECTOR 2 (input.first_name.form-control)", lambda: driver.find_element(By.CSS_SELECTOR, "input.first_name.form-control"))
+    try_find(driver, "CSS_SELECTOR", By.CSS_SELECTOR, "input[name='first_name']")
+    try_find(driver, "CSS_SELECTOR", By.CSS_SELECTOR, "input.form-control.whatsapp")
 
-    # XPATH
-    safe_find("XPATH 1 //input[@name='first_name']", lambda: driver.find_element(By.XPATH, "//input[@name='first_name']"))
-    safe_find("XPATH 2 //input[@class='first_name form-control']", lambda: driver.find_element(By.XPATH, "//input[@class='first_name form-control']"))
+    try_find(driver, "XPATH", By.XPATH, "//input[@name='first_name']")
+    try_find(driver, "XPATH", By.XPATH, "//input[@id='number']")
 
-    # RELATIVE LOCATORS
-    label = safe_find("RELATIVE helper (label for 'first_name')", lambda: driver.find_element(By.XPATH, "//label[@for='first_name']"))
-    if label:
-        safe_find("RELATIVE 1 (input below label)", lambda: driver.find_element(locate_with(By.TAG_NAME, "input").below(label)))
+    try:
+        base = driver.find_element(By.ID, "number")
+        rel = driver.find_element(locate_with(By.TAG_NAME, "input").above(base))
+        print(f"✅ RELATIVE: Input above #number → Tag name: {rel.tag_name}")
+    except:
+        pass
 
-    right_input = safe_find("RELATIVE helper (last_name input)", lambda: driver.find_element(By.NAME, "last_name"))
-    if right_input:
-        safe_find("RELATIVE 2 (input to left of last_name)", lambda: driver.find_element(locate_with(By.TAG_NAME, "input").to_left_of(right_input)))
+# === Page 2: Register ===
+def check_register_page(driver):
+    print("\n🔍 Checking https://phptravels.org/register.php")
+    driver.get("https://phptravels.org/register.php")
+    WebDriverWait(driver, 5).until(presence_of_element_located((By.TAG_NAME, "body")))
 
+    try_find(driver, "ID", By.ID, "inputFirstName")
+    try_find(driver, "ID", By.ID, "inputEmail")
 
-# List of URLs to test
-urls = [
-    "https://phptravels.com/demo/",
-    "https://phptravels.org/register.php",
-    "https://phptravels.com/blog/"
-]
+    try_find(driver, "CLASS_NAME", By.CLASS_NAME, "form-control")
+    try_find(driver, "CLASS_NAME", By.CLASS_NAME, "form-group")
 
-# Run locator checks
-for url in urls:
-    get_locators(url)
+    try_find(driver, "NAME", By.NAME, "firstname")
+    try_find(driver, "NAME", By.NAME, "email")
 
-driver.quit()
+    try_find(driver, "CSS_SELECTOR", By.CSS_SELECTOR, "input[name='lastname']")
+    try_find(driver, "CSS_SELECTOR", By.CSS_SELECTOR, "input#inputEmail")
+
+    try_find(driver, "XPATH", By.XPATH, "//input[@name='email']")
+    try_find(driver, "XPATH", By.XPATH, "//input[@id='inputFirstName']")
+
+    try:
+        base = driver.find_element(By.ID, "inputLastName")
+        rel = driver.find_element(locate_with(By.TAG_NAME, "input").above(base))
+        print(f"✅ RELATIVE: Input above #inputLastName → Tag name: {rel.tag_name}")
+    except:
+        pass
+
+# === Page 3: Blog ===
+def check_blog_page(driver):
+    print("\n🔍 Checking https://phptravels.com/blog/")
+    driver.get("https://phptravels.com/blog/")
+    WebDriverWait(driver, 5).until(presence_of_element_located((By.TAG_NAME, "body")))
+
+    try_find(driver, "ID", By.ID, "popular-posts")
+    try_find(driver, "ID", By.ID, "post-3050")
+
+    try_find(driver, "CLASS_NAME", By.CLASS_NAME, "post-title")
+    try_find(driver, "CLASS_NAME", By.CLASS_NAME, "image-wrapper")
+
+    try_find(driver, "NAME", By.NAME, "s")  # Search box, if present
+    try_find(driver, "NAME", By.NAME, "post_type")
+
+    try_find(driver, "CSS_SELECTOR", By.CSS_SELECTOR, "div.blog-page")
+    try_find(driver, "CSS_SELECTOR", By.CSS_SELECTOR, "#footer")
+
+    try_find(driver, "XPATH", By.XPATH, "//div[@class='blog-page']")
+    try_find(driver, "XPATH", By.XPATH, "//footer[@id='footer']")
+
+    try:
+        base = driver.find_element(By.ID, "footer")
+        rel = driver.find_element(locate_with(By.TAG_NAME, "div").above(base))
+        print(f"✅ RELATIVE: Div above #footer → Tag name: {rel.tag_name}")
+    except:
+        pass
+
+# === Main run ===
+if __name__ == "__main__":
+    driver = setup_driver()
+    try:
+        # check_demo_page(driver)
+        # check_register_page(driver)
+        check_blog_page(driver)
+    finally:
+        driver.quit()
