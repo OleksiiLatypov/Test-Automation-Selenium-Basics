@@ -6,6 +6,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 
+"""
+Task 4.
+Prepare a Python script. Use implicit wait and explicit wait inside the script:
+Open the google.com.
+Specify “Selenium” as the search field.
+Open the first link in the results.
+Expected result: Python script. Screenshot with the execution results.
+"""
+
 
 def setup_chrome_driver():
     options = Options()

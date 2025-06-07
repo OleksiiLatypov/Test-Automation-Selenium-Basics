@@ -3,6 +3,14 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium import webdriver
 from selenium.common import TimeoutException, WebDriverException
 
+"""
+Task 2.
+Provide the Python code which will open google.com in Chrome and Firefox browsers and print the title of the page.
+1. Using the automatic approach (Selenium Manager or Driver Management Software) for Chrome.
+2. Using the manual approach (PATH variable or Hard Coded Location) for Firefox.
+Expected result: Python script
+"""
+
 
 def get_title(url: str, browser: str) -> str:
     driver = None
